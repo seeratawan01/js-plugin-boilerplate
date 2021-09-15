@@ -2,7 +2,7 @@
 import './scss/styles.scss';
 
 // import UserList class
-import { myPlugin as defaultExport } from './lib/myPlugin';
+import { bubbleGantt as defaultExport } from './lib/bubbleGantt';
 
 // export default UserList class
 // I used `defaultExport` to state that variable name doesn't matter
