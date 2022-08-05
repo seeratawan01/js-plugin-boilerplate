@@ -1,10 +1,14 @@
 const path = require('path');
-const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const config = require('config');
+const CopyPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 /*-------------------------------------------------*/
 
+const PluginName = 'MyPlugin'
 module.exports = {
     // webpack optimization mode
     mode: (process.env.NODE_ENV ? process.env.NODE_ENV : 'development'),
@@ -14,12 +18,12 @@ module.exports = {
 
     // output file(s) and chunks
     output: {
-        library: 'MyPlugin',
+        library: PluginName,
         libraryTarget: 'umd',
         globalObject: '(typeof self !== "undefined" ? self : this)',
         libraryExport: 'default',
         path: path.resolve(__dirname, 'dist'),
-        filename: 'index.js',
+        filename: `${PluginName}.js`,
         publicPath: config.get('publicPath')
     },
 
@@ -37,23 +41,37 @@ module.exports = {
             }
         ]
     },
-
+    optimization: {
+        minimizer: [
+            new CssMinimizerPlugin(),
+            new TerserPlugin({
+                extractComments: false
+            })
+        ]
+    },
     plugins: [
         new HTMLWebpackPlugin({
             template: path.resolve(__dirname, 'index.html')
-        })
+        }),
+        new MiniCssExtractPlugin(),
     ],
 
     // development server configuration
     devServer: {
 
+        static: './',
+
         // must be `true` for SPAs
         historyApiFallback: true,
 
         // open browser on server start
-        open: config.get('open')
+        open: config.get('open'),
+
+        hot: true,
+
+        port: 9999
     },
 
     // generate source map
-    devtool: ('production' === process.env.NODE_ENV ? 'source-map' : 'cheap-module-eval-source-map'),
+    devtool: 'production' === process.env.NODE_ENV ? 'source-map' : false
 };
